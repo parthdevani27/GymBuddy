@@ -1,0 +1,7 @@
+{
+  "name": "GymGenius AI",
+  "description": "A comprehensive workout tracker with weekly planning, daily logging, progress visualization, and AI-powered insights using Gemini.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
