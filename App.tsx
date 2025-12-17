@@ -12,6 +12,8 @@ import { getISTDateString } from './utils/time';
 import { LayoutDashboard, Calendar, ClipboardList, Loader2, CalendarCheck, Cloud, CloudOff, Wifi, WifiOff, Settings, RefreshCw } from 'lucide-react';
 import { PinLock } from './components/PinLock';
 
+import { MobileNav } from './components/MobileNav';
+
 const AppContent = () => {
   const { showToast } = useToast();
   const [state, setState] = useState<AppState | null>(null);
@@ -107,7 +109,7 @@ const AppContent = () => {
   return (
     <div className="flex h-screen w-full bg-slate-950 text-slate-200">
       {/* Sidebar Navigation */}
-      <div className="w-20 md:w-64 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col">
+      <div className="hidden md:flex w-20 md:w-64 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex-col">
         <div className="p-6 flex items-center gap-3">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">G</div>
           <h1 className="text-xl font-bold text-white hidden md:block">GymGenius</h1>
@@ -169,7 +171,7 @@ const AppContent = () => {
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 overflow-auto relative pb-20 md:pb-0 h-screen">
         <Routes>
           <Route path="/" element={<Dashboard data={state} />} />
           <Route path="/calendar" element={<CalendarWrapper logs={state.logs} />} />
@@ -211,6 +213,8 @@ const AppContent = () => {
           }
         }}
       />
+
+      <MobileNav handleNavClick={handleNavClick} />
     </div>
   );
 };

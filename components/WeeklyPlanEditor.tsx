@@ -18,7 +18,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
   const [localPlan, setLocalPlan] = useState<WeeklyPlan>(() => JSON.parse(JSON.stringify(plan)));
   const [originalPlanJson, setOriginalPlanJson] = useState(() => JSON.stringify(plan));
   const [selectedDay, setSelectedDay] = useState<string>('Monday');
-  
+
   // Import Modal State
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [importText, setImportText] = useState('');
@@ -30,7 +30,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
   useEffect(() => {
     const isDirty = JSON.stringify(localPlan) !== originalPlanJson;
     setHasUnsavedChanges(isDirty);
-    
+
     // Cleanup on unmount
     return () => setHasUnsavedChanges(false);
   }, [localPlan, originalPlanJson, setHasUnsavedChanges]);
@@ -66,7 +66,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
       ...prev,
       [selectedDay]: {
         ...prev[selectedDay],
-        exercises: prev[selectedDay].exercises.map(ex => 
+        exercises: prev[selectedDay].exercises.map(ex =>
           ex.id === id ? { ...ex, [field]: value } : ex
         )
       }
@@ -106,7 +106,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
 
   const handleAIImport = async () => {
     if (!importText.trim()) return;
-    
+
     setIsImporting(true);
     const newPlan = await parseWorkoutPlanFromText(importText);
     setIsImporting(false);
@@ -115,7 +115,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
       setLocalPlan(newPlan);
       onSave(newPlan); // Auto save
       setOriginalPlanJson(JSON.stringify(newPlan)); // Sync baseline to avoid dirty state
-      
+
       setIsImportModalOpen(false);
       setImportText('');
       showToast('Plan imported and saved successfully!', 'success');
@@ -126,23 +126,23 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
 
   return (
     <div className="space-y-6 h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
         <h2 className="text-2xl font-bold text-white flex items-center gap-2">
           <Dumbbell className="text-blue-500" /> Weekly Planner
         </h2>
-        <div className="flex gap-2">
-            <button 
-                onClick={() => setIsImportModalOpen(true)}
-                className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2"
-            >
-                <Sparkles size={18} /> AI Import
-            </button>
-            <button 
-                onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold transition shadow-lg shadow-blue-900/20"
-            >
-                Save Plan
-            </button>
+        <div className="flex gap-2 w-full md:w-auto">
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="flex-1 md:flex-none justify-center bg-purple-600 hover:bg-purple-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2 text-sm md:text-base"
+          >
+            <Sparkles size={18} /> <span className="hidden xs:inline">AI Import</span>
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 md:flex-none justify-center bg-blue-600 hover:bg-blue-500 text-white px-4 md:px-6 py-2 rounded-lg font-semibold transition shadow-lg shadow-blue-900/20 text-sm md:text-base"
+          >
+            Save Plan
+          </button>
         </div>
       </div>
 
@@ -151,11 +151,10 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
           <button
             key={day}
             onClick={() => setSelectedDay(day)}
-            className={`px-4 py-2 rounded-full whitespace-nowrap transition ${
-              selectedDay === day 
-                ? 'bg-blue-600 text-white' 
+            className={`px-4 py-2 rounded-full whitespace-nowrap transition ${selectedDay === day
+                ? 'bg-blue-600 text-white'
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-            }`}
+              }`}
           >
             {day}
           </button>
@@ -167,15 +166,13 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
           <h3 className="text-xl font-semibold text-blue-100">{selectedDay}</h3>
           <div className="flex items-center gap-3">
             <span className="text-slate-400 text-sm">Rest Day?</span>
-            <button 
+            <button
               onClick={toggleRestDay}
-              className={`w-12 h-6 rounded-full transition-colors relative ${
-                currentDayPlan.isRestDay ? 'bg-green-500' : 'bg-slate-700'
-              }`}
+              className={`w-12 h-6 rounded-full transition-colors relative ${currentDayPlan.isRestDay ? 'bg-green-500' : 'bg-slate-700'
+                }`}
             >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                currentDayPlan.isRestDay ? 'left-7' : 'left-1'
-              }`} />
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${currentDayPlan.isRestDay ? 'left-7' : 'left-1'
+                }`} />
             </button>
           </div>
         </div>
@@ -219,19 +216,19 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col gap-2">
                     <label className="cursor-pointer bg-slate-700 hover:bg-slate-600 p-2 rounded text-center transition">
                       <Upload size={18} className="mx-auto text-blue-400" />
                       <span className="text-[10px] text-slate-300">Media</span>
-                      <input 
-                        type="file" 
-                        accept="image/*,video/*" 
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
                         className="hidden"
                         onChange={(e) => e.target.files && handleMediaUpload(ex.id, e.target.files[0])}
                       />
                     </label>
-                    <button 
+                    <button
                       onClick={() => removeExercise(ex.id)}
                       className="bg-red-900/30 hover:bg-red-900/50 text-red-400 p-2 rounded transition"
                     >
@@ -240,9 +237,9 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
                   </div>
                 </div>
                 {ex.media && (
-                   <div className="mt-2 text-xs text-green-400 flex items-center gap-1">
-                     ✓ {ex.media.name} attached
-                   </div>
+                  <div className="mt-2 text-xs text-green-400 flex items-center gap-1">
+                    ✓ {ex.media.name} attached
+                  </div>
                 )}
               </div>
             ))}
@@ -263,40 +260,40 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
         title="AI Plan Import"
       >
         <div className="space-y-4">
-            <p className="text-slate-300 text-sm">
-                Paste your workout plan below. The AI will automatically detect days, exercises, sets, and reps. 
-                <span className="text-orange-400 block mt-1">Note: This will replace your current unsaved changes and automatically save the new plan.</span>
-            </p>
-            <textarea
-                value={importText}
-                onChange={(e) => setImportText(e.target.value)}
-                placeholder={`Example:\nMONDAY: Chest\nBench Press: 3 sets x 10 reps\nPushups: 3 sets x 15 reps\n\nWEDNESDAY: Legs...`}
-                className="w-full h-64 bg-slate-950 border border-slate-700 rounded-lg p-3 text-white text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none font-mono"
-            />
-            <div className="flex justify-end gap-2">
-                <button 
-                    onClick={() => setIsImportModalOpen(false)}
-                    className="px-4 py-2 text-slate-400 hover:text-white transition"
-                    disabled={isImporting}
-                >
-                    Cancel
-                </button>
-                <button 
-                    onClick={handleAIImport}
-                    disabled={isImporting || !importText.trim()}
-                    className="bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:text-slate-500 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2"
-                >
-                    {isImporting ? (
-                        <>
-                           <Loader2 size={18} className="animate-spin" /> Processing...
-                        </>
-                    ) : (
-                        <>
-                           <Sparkles size={18} /> Generate & Save
-                        </>
-                    )}
-                </button>
-            </div>
+          <p className="text-slate-300 text-sm">
+            Paste your workout plan below. The AI will automatically detect days, exercises, sets, and reps.
+            <span className="text-orange-400 block mt-1">Note: This will replace your current unsaved changes and automatically save the new plan.</span>
+          </p>
+          <textarea
+            value={importText}
+            onChange={(e) => setImportText(e.target.value)}
+            placeholder={`Example:\nMONDAY: Chest\nBench Press: 3 sets x 10 reps\nPushups: 3 sets x 15 reps\n\nWEDNESDAY: Legs...`}
+            className="w-full h-64 bg-slate-950 border border-slate-700 rounded-lg p-3 text-white text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none font-mono"
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setIsImportModalOpen(false)}
+              className="px-4 py-2 text-slate-400 hover:text-white transition"
+              disabled={isImporting}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAIImport}
+              disabled={isImporting || !importText.trim()}
+              className="bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:text-slate-500 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2"
+            >
+              {isImporting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" /> Processing...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={18} /> Generate & Save
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </Modal>
     </div>

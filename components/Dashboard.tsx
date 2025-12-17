@@ -41,87 +41,87 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
       <h2 className="text-3xl font-bold text-white mb-6">Dashboard</h2>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg">
-          <div className="flex items-center gap-3 mb-2">
-            <Activity className="text-green-500" />
-            <h3 className="text-slate-400 font-semibold">Total Workouts</h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800 shadow-lg">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
+            <Activity className="text-green-500 w-4 h-4 md:w-6 md:h-6" />
+            <h3 className="text-slate-400 font-semibold text-xs md:text-base">Workouts</h3>
           </div>
-          <p className="text-4xl font-bold text-white">{totalWorkouts}</p>
+          <p className="text-2xl md:text-4xl font-bold text-white">{totalWorkouts}</p>
         </div>
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg overflow-hidden">
-          <div className="flex items-center gap-3 mb-2">
-            <Flame className="text-orange-500" />
-            <h3 className="text-slate-400 font-semibold">Calories Burned</h3>
+        <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800 shadow-lg overflow-hidden">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
+            <Flame className="text-orange-500 w-4 h-4 md:w-6 md:h-6" />
+            <h3 className="text-slate-400 font-semibold text-xs md:text-base">Calories</h3>
           </div>
-          <p className="text-4xl font-bold text-white truncate" title={`${Math.round(totalCalories).toLocaleString()} kcal`}>
-            {Math.round(totalCalories).toLocaleString()} <span className="text-lg text-slate-500 font-normal">kcal</span>
+          <p className="text-2xl md:text-4xl font-bold text-white truncate" title={`${Math.round(totalCalories).toLocaleString()} kcal`}>
+            {Math.round(totalCalories).toLocaleString()} <span className="text-xs md:text-lg text-slate-500 font-normal">kcal</span>
           </p>
         </div>
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg">
-          <div className="flex items-center gap-3 mb-2">
-            <TrendingUp className="text-blue-500" />
-            <h3 className="text-slate-400 font-semibold">Entries</h3>
+        <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800 shadow-lg">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
+            <TrendingUp className="text-blue-500 w-4 h-4 md:w-6 md:h-6" />
+            <h3 className="text-slate-400 font-semibold text-xs md:text-base">Entries</h3>
           </div>
-          <p className="text-4xl font-bold text-white">{logs.length}</p>
+          <p className="text-2xl md:text-4xl font-bold text-white">{logs.length}</p>
         </div>
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg">
-           <div className="flex items-center gap-3 mb-2">
-            <div className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500 flex items-center justify-center text-xs text-red-500 font-bold">!</div>
-            <h3 className="text-slate-400 font-semibold">Skipped Days</h3>
+        <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800 shadow-lg">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
+            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-red-500/20 border border-red-500 flex items-center justify-center text-[10px] md:text-xs text-red-500 font-bold">!</div>
+            <h3 className="text-slate-400 font-semibold text-xs md:text-base">Skipped</h3>
           </div>
-          <p className="text-4xl font-bold text-white">{totalSkipped}</p>
+          <p className="text-2xl md:text-4xl font-bold text-white">{totalSkipped}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Weight Chart */}
-          <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg h-80">
-            <h3 className="text-xl font-bold text-white mb-4">Weight Trend</h3>
-            {chartData.length > 1 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis dataKey="date" stroke="#94a3b8" />
-                  <YAxis domain={['auto', 'auto']} stroke="#94a3b8" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }}
-                    itemStyle={{ color: '#60a5fa' }}
-                    formatter={(value: number) => [`${value} kg`, 'Weight']}
-                  />
-                  <Line type="monotone" dataKey="weight" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-slate-500">
-                Log at least two weight entries.
-              </div>
-            )}
-          </div>
+        {/* Weight Chart */}
+        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg h-80">
+          <h3 className="text-xl font-bold text-white mb-4">Weight Trend</h3>
+          {chartData.length > 1 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <XAxis dataKey="date" stroke="#94a3b8" />
+                <YAxis domain={['auto', 'auto']} stroke="#94a3b8" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }}
+                  itemStyle={{ color: '#60a5fa' }}
+                  formatter={(value: number) => [`${value} kg`, 'Weight']}
+                />
+                <Line type="monotone" dataKey="weight" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center text-slate-500">
+              Log at least two weight entries.
+            </div>
+          )}
+        </div>
 
-          {/* Calories Chart */}
-          <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg h-80">
-            <h3 className="text-xl font-bold text-white mb-4">Calorie Burn</h3>
-             {chartData.length > 1 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis dataKey="date" stroke="#94a3b8" />
-                  <YAxis stroke="#94a3b8" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }}
-                    itemStyle={{ color: '#fb923c' }}
-                    formatter={(value: number) => [`${value} kcal`, 'Calories']}
-                  />
-                  <Area type="monotone" dataKey="calories" stroke="#fb923c" fill="#fb923c" fillOpacity={0.2} />
-                </AreaChart>
-              </ResponsiveContainer>
-             ) : (
-                <div className="h-full flex items-center justify-center text-slate-500">
-                  Log at least two workouts.
-                </div>
-             )}
-          </div>
+        {/* Calories Chart */}
+        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg h-80">
+          <h3 className="text-xl font-bold text-white mb-4">Calorie Burn</h3>
+          {chartData.length > 1 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <XAxis dataKey="date" stroke="#94a3b8" />
+                <YAxis stroke="#94a3b8" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }}
+                  itemStyle={{ color: '#fb923c' }}
+                  formatter={(value: number) => [`${value} kcal`, 'Calories']}
+                />
+                <Area type="monotone" dataKey="calories" stroke="#fb923c" fill="#fb923c" fillOpacity={0.2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center text-slate-500">
+              Log at least two workouts.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* AI Report Section */}
@@ -138,15 +138,15 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
             {loading ? 'Analyzing...' : 'Generate New Report'}
           </button>
         </div>
-        
+
         <div className="p-6">
           {report ? (
             <div className="space-y-4 animate-fadeIn">
               <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                 <h4 className="text-purple-300 font-bold mb-2 uppercase text-sm">Analysis Summary</h4>
-                 <p className="text-slate-300 leading-relaxed">{report.summary}</p>
+                <h4 className="text-purple-300 font-bold mb-2 uppercase text-sm">Analysis Summary</h4>
+                <p className="text-slate-300 leading-relaxed">{report.summary}</p>
               </div>
-              
+
               <div>
                 <h4 className="text-blue-300 font-bold mb-3 uppercase text-sm">Actionable Tips</h4>
                 <ul className="space-y-2">

@@ -23,7 +23,7 @@ export const getExerciseInstructions = async (exerciseName: string): Promise<str
   }
 };
 
-export const getBatchExerciseTips = async (exercises: string[]): Promise<{[key: string]: string}> => {
+export const getBatchExerciseTips = async (exercises: string[]): Promise<{ [key: string]: string }> => {
   if (!process.env.API_KEY || exercises.length === 0) return {};
 
   const prompt = `
@@ -50,13 +50,13 @@ export const getBatchExerciseTips = async (exercises: string[]): Promise<{[key: 
 };
 
 export const calculateCalories = async (log: DailyLog): Promise<number> => {
-    if (!process.env.API_KEY) return 0;
+  if (!process.env.API_KEY) return 0;
 
-    const workoutDetails = log.loggedExercises.map(ex => 
-        `${ex.name}: ${ex.setsPerformed.length} sets completed. Weights: ${ex.setsPerformed.map(s => s.weight).join(',')}kg. Reps: ${ex.setsPerformed.map(s => s.reps).join(',')}`
-    ).join('\n');
+  const workoutDetails = log.loggedExercises.map(ex =>
+    `${ex.name}: ${ex.setsPerformed.length} sets completed. Weights: ${ex.setsPerformed.map(s => s.weight).join(',')}kg. Reps: ${ex.setsPerformed.map(s => s.reps).join(',')}`
+  ).join('\n');
 
-    const prompt = `
+  const prompt = `
       Calculate the approximate TOTAL calories burned for a person with body weight ${log.bodyWeight || 70}kg performing this workout:
       ${workoutDetails}
       
@@ -64,34 +64,34 @@ export const calculateCalories = async (log: DailyLog): Promise<number> => {
       Return ONLY a single number (integer) representing the calories. Do not output text.
     `;
 
-    try {
-        const response = await ai.models.generateContent({
-            model: GEMINI_MODEL_TEXT,
-            contents: prompt,
-        });
-        
-        // Match the first distinct number to avoid issues with text merging
-        const text = response.text || "";
-        const match = text.match(/(\d+)/);
-        if (match) {
-             const num = parseInt(match[0]);
-             return isNaN(num) ? 0 : num;
-        }
-        return 0;
-    } catch (error) {
-        console.error("Calorie Calc Error:", error);
-        return 0;
+  try {
+    const response = await ai.models.generateContent({
+      model: GEMINI_MODEL_TEXT,
+      contents: prompt,
+    });
+
+    // Match the first distinct number to avoid issues with text merging
+    const text = response.text || "";
+    const match = text.match(/(\d+)/);
+    if (match) {
+      const num = parseInt(match[0]);
+      return isNaN(num) ? 0 : num;
     }
+    return 0;
+  } catch (error) {
+    console.error("Calorie Calc Error:", error);
+    return 0;
+  }
 };
 
 export const analyzeDailyWorkout = async (log: DailyLog): Promise<string> => {
-    if (!process.env.API_KEY) return "AI unavailable.";
+  if (!process.env.API_KEY) return "AI unavailable.";
 
-    const workoutDetails = log.loggedExercises.map(ex => 
-        `${ex.name}: ${ex.setsPerformed.length} sets. Best Set: ${Math.max(...ex.setsPerformed.map(s => Number(s.weight)))}kg`
-    ).join('\n');
+  const workoutDetails = log.loggedExercises.map(ex =>
+    `${ex.name}: ${ex.setsPerformed.length} sets. Best Set: ${Math.max(...ex.setsPerformed.map(s => Number(s.weight)))}kg`
+  ).join('\n');
 
-    const prompt = `
+  const prompt = `
       Analyze this daily workout for a gym goer (${log.bodyWeight || 70}kg).
       Workout Data:
       ${workoutDetails}
@@ -103,15 +103,15 @@ export const analyzeDailyWorkout = async (log: DailyLog): Promise<string> => {
       Keep it under 100 words.
     `;
 
-    try {
-        const response = await ai.models.generateContent({
-            model: GEMINI_MODEL_TEXT,
-            contents: prompt,
-        });
-        return response.text || "Analysis failed.";
-    } catch (error) {
-        return "Could not generate analysis.";
-    }
+  try {
+    const response = await ai.models.generateContent({
+      model: GEMINI_MODEL_TEXT,
+      contents: prompt,
+    });
+    return response.text || "Analysis failed.";
+  } catch (error) {
+    return "Could not generate analysis.";
+  }
 };
 
 export const generateProgressReport = async (logs: DailyLog[]): Promise<{ summary: string, tips: string[] }> => {
@@ -197,10 +197,10 @@ export const parseWorkoutPlanFromText = async (text: string): Promise<WeeklyPlan
     });
 
     const rawPlan = JSON.parse(response.text || "{}");
-    
+
     // Post-processing to ensure data integrity (ids, missing days)
     const processedPlan: any = { ...DEFAULT_PLAN };
-    
+
     ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
       if (rawPlan[day]) {
         processedPlan[day] = {
@@ -224,3 +224,37 @@ export const parseWorkoutPlanFromText = async (text: string): Promise<WeeklyPlan
     return null;
   }
 };
+
+export const getExerciseVisualDetails = async (exerciseName: string): Promise<{
+  targetedMuscles: string[];
+  equipment: string[];
+  steps: { title: string; detail: string }[];
+} | null> => {
+  if (!process.env.API_KEY) return null;
+
+  const prompt = `
+      For the gym exercise "${exerciseName}", provide visual details for an animation guide.
+      
+      Return a JSON object with:
+      1. "targetedMuscles": Array of strings (e.g. "Pectoralis Major", "Triceps").
+      2. "equipment": Array of strings (e.g. "Barbell", "Bench").
+      3. "steps": Array of objects, each having a "title" (short phase name, e.g. "Starting Position") and "detail" (visual description of body alignment).
+      
+      Keep descriptions visual and precise.
+    `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: GEMINI_MODEL_TEXT,
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      }
+    });
+
+    return JSON.parse(response.text || "{}");
+  } catch (e) {
+    console.error("Visual Details Error:", e);
+    return null;
+  }
+}
