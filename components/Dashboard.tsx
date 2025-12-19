@@ -80,7 +80,7 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Weight Trend</h3>
           {chartData.length > 1 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
+              <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 30 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis dataKey="date" stroke="#94a3b8" />
                 <YAxis domain={['auto', 'auto']} stroke="#94a3b8" />
@@ -104,7 +104,7 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Calorie Burn</h3>
           {chartData.length > 1 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 30 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis dataKey="date" stroke="#94a3b8" />
                 <YAxis stroke="#94a3b8" />

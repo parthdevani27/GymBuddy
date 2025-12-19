@@ -22,6 +22,46 @@ interface Props {
   onUpdateRestTimer: (seconds: number) => void;
 }
 
+// Internal Helper for Swipeable Row
+const SwipeableLogExerciseRow: React.FC<{
+  exercise: LoggedExercise;
+  exIdx: number;
+  isEditable: boolean;
+  onUpdateName: (val: string) => void;
+  onGetAdvice: () => void;
+  onVisualize: () => void;
+  onRemove: () => void;
+  children: React.ReactNode;
+}> = ({ exercise, exIdx, isEditable, onUpdateName, onGetAdvice, onVisualize, onRemove, children }) => {
+  // Only enable swipe if editable
+  // If not editable, we just render the content directly, or render scrolling but disabled actions?
+  // Let's keep it consistent: render scroll but maybe hide actions or disable them?
+  // Actually if not editable, simpler to just show content.
+
+  if (!isEditable) {
+    return <div className="mb-6">{children}</div>;
+  }
+
+  return (
+    <div className="mb-6 flex overflow-x-auto snap-x snap-mandatory scrollbar-hide rounded-3xl">
+      <div className="min-w-full snap-center">
+        {children}
+      </div>
+
+      {/* Right Delete Pane */}
+      <div className="min-w-[80px] snap-center bg-red-500 flex items-center justify-center rounded-r-3xl my-0.5">
+        <button
+          onClick={onRemove}
+          className="w-full h-full flex flex-col items-center justify-center text-white hover:bg-red-600 transition gap-1"
+        >
+          <Trash2 size={24} />
+          <span className="text-[10px] font-bold uppercase">Delete</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, onBack, setHasUnsavedChanges, defaultRestTimer, onUpdateRestTimer }) => {
   const { showToast } = useToast();
   const dateObj = new Date(dateStr);
@@ -544,147 +584,163 @@ export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, 
             </div>
 
             {currentLog.loggedExercises.map((ex, exIdx) => (
-              <div key={ex.id} className={`bg-white dark:bg-slate-900 rounded-3xl border border-ios-divider dark:border-slate-800 shadow-sm overflow-hidden group transition-all duration-300 ${!isEditable ? 'opacity-90' : ''}`}>
-                {/* Exercise Header */}
-                <div className="p-5 bg-ios-bg-light dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-ios-divider dark:border-slate-700/50 flex justify-between items-start relative">
-                  <div className="flex-1 relative z-10">
-                    {ex.isCustom && isEditable ? (
-                      <input
-                        value={ex.name}
-                        onChange={(e) => handleExerciseNameChange(exIdx, e.target.value)}
-                        placeholder="Exercise Name"
-                        className="bg-transparent text-xl font-bold text-slate-900 dark:text-white w-full outline-none placeholder:text-slate-400"
-                      />
-                    ) : (
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white">{ex.name}</h3>
-                    )}
-                    <div className="flex items-center gap-3 mt-2 text-xs font-bold text-slate-600 dark:text-slate-400">
-                      <span className="bg-slate-100 dark:bg-black px-2 py-1 rounded-md border border-slate-200 dark:border-slate-800">TARGET: {ex.targetSets} SETS</span>
-                      <span className="bg-slate-100 dark:bg-black px-2 py-1 rounded-md border border-slate-200 dark:border-slate-800">REPS: {ex.targetReps}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-2 relative z-10">
-                    <button
-                      onClick={() => handleGetDetailedAdvice(ex.name)}
-                      className="p-2 bg-white dark:bg-slate-800 text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition shadow-sm border border-ios-divider dark:border-transparent"
-                      title="Detailed Instructions"
-                    >
-                      <Bot size={20} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setVisualizerExercise(ex.name);
-                        setVisualizerOpen(true);
-                      }}
-                      className="p-2 bg-purple-100 dark:bg-slate-800 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-200 dark:hover:bg-slate-700 transition"
-                      title="Visualize Form"
-                    >
-                      <Play size={20} fill="currentColor" />
-                    </button>
-                  </div>
-
-                  {/* Background Media Hint */}
-                  {ex.media && (
-                    <div className="absolute right-0 top-0 h-full w-48 opacity-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
-                  )}
-                </div>
-
-                {/* AI Tip Section */}
-                {ex.aiHint && isEditable && (
-                  <div className="bg-purple-50 dark:bg-purple-900/10 border-b border-purple-100 dark:border-purple-500/10 px-5 py-3 flex items-start gap-3">
-                    <Lightbulb size={18} className="text-purple-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-purple-900 dark:text-purple-200 font-medium leading-relaxed italic">
-                      "{ex.aiHint}"
-                    </p>
-                  </div>
-                )}
-
-                <div className="p-5">
-                  {/* Media Display */}
-                  {ex.media && (
-                    <div className="mb-6 rounded-xl overflow-hidden max-h-64 bg-black flex justify-center shadow-inner">
-                      {ex.media.type === 'video' ? (
-                        <video src={ex.media.url} controls className="h-full max-w-full" />
+              <SwipeableLogExerciseRow
+                key={ex.id || exIdx}
+                exercise={ex}
+                exIdx={exIdx}
+                isEditable={isEditable}
+                onUpdateName={(val) => handleExerciseNameChange(exIdx, val)}
+                onGetAdvice={() => handleGetDetailedAdvice(ex.name)}
+                onVisualize={() => { setVisualizerExercise(ex.name); setVisualizerOpen(true); }}
+                onRemove={() => {
+                  setCurrentLog(prev => ({
+                    ...prev,
+                    loggedExercises: prev.loggedExercises.filter((_, i) => i !== exIdx)
+                  }));
+                }}
+              >
+                <div className={`bg-white dark:bg-slate-900 rounded-3xl border border-ios-divider dark:border-slate-800 shadow-sm overflow-hidden group transition-all duration-300 ${!isEditable ? 'opacity-90' : ''}`}>
+                  {/* Exercise Header */}
+                  <div className="p-5 bg-ios-bg-light dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-ios-divider dark:border-slate-700/50 flex justify-between items-start relative">
+                    <div className="flex-1 relative z-10">
+                      {ex.isCustom && isEditable ? (
+                        <input
+                          value={ex.name}
+                          onChange={(e) => handleExerciseNameChange(exIdx, e.target.value)}
+                          placeholder="Exercise Name"
+                          className="bg-transparent text-xl font-bold text-slate-900 dark:text-white w-full outline-none placeholder:text-slate-400"
+                        />
                       ) : (
-                        <img src={ex.media.url} alt={ex.name} className="h-full max-w-full object-contain" />
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">{ex.name}</h3>
                       )}
+                      <div className="flex items-center gap-3 mt-2 text-xs font-bold text-slate-600 dark:text-slate-400">
+                        <span className="bg-slate-100 dark:bg-black px-2 py-1 rounded-md border border-slate-200 dark:border-slate-800">TARGET: {ex.targetSets} SETS</span>
+                        <span className="bg-slate-100 dark:bg-black px-2 py-1 rounded-md border border-slate-200 dark:border-slate-800">REPS: {ex.targetReps}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-2 relative z-10">
+                      <button
+                        onClick={() => handleGetDetailedAdvice(ex.name)}
+                        className="p-2 bg-white dark:bg-slate-800 text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition shadow-sm border border-ios-divider dark:border-transparent"
+                        title="Detailed Instructions"
+                      >
+                        <Bot size={20} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setVisualizerExercise(ex.name);
+                          setVisualizerOpen(true);
+                        }}
+                        className="p-2 bg-purple-100 dark:bg-slate-800 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-200 dark:hover:bg-slate-700 transition"
+                        title="Visualize Form"
+                      >
+                        <Play size={20} fill="currentColor" />
+                      </button>
+                    </div>
+
+                    {/* Background Media Hint */}
+                    {ex.media && (
+                      <div className="absolute right-0 top-0 h-full w-48 opacity-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+                    )}
+                  </div>
+
+                  {/* AI Tip Section */}
+                  {ex.aiHint && isEditable && (
+                    <div className="bg-purple-50 dark:bg-purple-900/10 border-b border-purple-100 dark:border-purple-500/10 px-5 py-3 flex items-start gap-3">
+                      <Lightbulb size={18} className="text-purple-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-purple-900 dark:text-purple-200 font-medium leading-relaxed italic">
+                        "{ex.aiHint}"
+                      </p>
                     </div>
                   )}
 
-                  {/* Sets Table Header */}
-                  <div className="grid grid-cols-12 gap-1 md:gap-2 text-[8px] md:text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider mb-2 px-1">
-                    <div className="col-span-1 text-center flex items-center justify-center">#</div>
-                    <div className="col-span-4 text-center">Weight (kg)</div>
-                    <div className="col-span-4 text-center">Reps</div>
-                    <div className="col-span-2 text-center">Done</div>
-                    <div className="col-span-1"></div>
-                  </div>
-
-                  {/* Sets Rows */}
-                  <div className="space-y-2">
-                    {ex.setsPerformed.map((set, setIdx) => (
-                      <div key={set.id} className="grid grid-cols-12 gap-1 md:gap-2 items-center group/set">
-                        <div className="col-span-1 flex justify-center">
-                          <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center text-[10px] md:text-xs font-mono font-bold">
-                            {setIdx + 1}
-                          </span>
-                        </div>
-                        <div className="col-span-4">
-                          <input
-                            type="number"
-                            value={set.weight}
-                            disabled={!isEditable}
-                            onChange={(e) => updateSet(exIdx, setIdx, 'weight', e.target.value)}
-                            className={`w-full bg-slate-100 dark:bg-slate-950 border border-transparent dark:border-slate-700 rounded-lg py-1.5 md:py-2 text-center text-slate-900 dark:text-white font-mono focus:border-ios-blue focus:ring-1 focus:ring-ios-blue outline-none transition-all text-sm md:text-base font-bold shadow-sm ${!isEditable ? 'opacity-50' : ''}`}
-                          />
-                        </div>
-                        <div className="col-span-4">
-                          <input
-                            type="number"
-                            value={set.reps}
-                            disabled={!isEditable}
-                            onChange={(e) => updateSet(exIdx, setIdx, 'reps', e.target.value)}
-                            className={`w-full bg-slate-100 dark:bg-slate-950 border border-transparent dark:border-slate-700 rounded-lg py-1.5 md:py-2 text-center text-slate-900 dark:text-white font-mono focus:border-ios-blue focus:ring-1 focus:ring-ios-blue outline-none transition-all text-sm md:text-base font-bold shadow-sm ${!isEditable ? 'opacity-50' : ''}`}
-                          />
-                        </div>
-                        <div className="col-span-2 flex justify-center">
-                          <label className={`cursor-pointer relative ${!isEditable ? 'pointer-events-none opacity-50' : ''}`}>
-                            <input
-                              type="checkbox"
-                              checked={set.completed}
-                              onChange={(e) => updateSet(exIdx, setIdx, 'completed', e.target.checked)}
-                              className="peer sr-only"
-                            />
-                            <div className="w-8 h-8 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 peer-checked:bg-green-500 peer-checked:border-green-500 transition-all flex items-center justify-center text-slate-900 dark:text-white shadow-sm">
-                              <CheckCircle2 size={16} className="opacity-0 peer-checked:opacity-100 transition-opacity md:w-[18px] md:h-[18px]" />
-                            </div>
-                          </label>
-                        </div>
-                        <div className="col-span-1 flex justify-center">
-                          {isEditable && (
-                            <button
-                              onClick={() => removeSet(exIdx, setIdx)}
-                              className="text-slate-700 hover:text-red-500 transition-colors opacity-100 md:opacity-0 md:group-hover/set:opacity-100"
-                            >
-                              <Trash2 size={14} className="md:w-4 md:h-4" />
-                            </button>
-                          )}
-                        </div>
+                  <div className="p-5">
+                    {/* Media Display */}
+                    {ex.media && (
+                      <div className="mb-6 rounded-xl overflow-hidden max-h-64 bg-black flex justify-center shadow-inner">
+                        {ex.media.type === 'video' ? (
+                          <video src={ex.media.url} controls className="h-full max-w-full" />
+                        ) : (
+                          <img src={ex.media.url} alt={ex.name} className="h-full max-w-full object-contain" />
+                        )}
                       </div>
-                    ))}
-                  </div>
+                    )}
 
-                  {isEditable && (
-                    <button
-                      onClick={() => handleAddSet(exIdx)}
-                      className="w-full mt-4 py-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 text-sm font-semibold rounded-xl transition flex justify-center items-center gap-2 border border-dashed border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600"
-                    >
-                      <Plus size={16} /> Add Set
-                    </button>
-                  )}
+                    {/* Sets Table Header */}
+                    <div className="grid grid-cols-12 gap-1 md:gap-2 text-[8px] md:text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider mb-2 px-1">
+                      <div className="col-span-1 text-center flex items-center justify-center">#</div>
+                      <div className="col-span-4 text-center">Weight (kg)</div>
+                      <div className="col-span-4 text-center">Reps</div>
+                      <div className="col-span-2 text-center">Done</div>
+                      <div className="col-span-1"></div>
+                    </div>
+
+                    {/* Sets Rows */}
+                    <div className="space-y-2">
+                      {ex.setsPerformed.map((set, setIdx) => (
+                        <div key={set.id} className="grid grid-cols-12 gap-1 md:gap-2 items-center group/set">
+                          <div className="col-span-1 flex justify-center">
+                            <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center text-[10px] md:text-xs font-mono font-bold">
+                              {setIdx + 1}
+                            </span>
+                          </div>
+                          <div className="col-span-4">
+                            <input
+                              type="number"
+                              value={set.weight}
+                              disabled={!isEditable}
+                              onChange={(e) => updateSet(exIdx, setIdx, 'weight', e.target.value)}
+                              className={`w-full bg-slate-100 dark:bg-slate-950 border border-transparent dark:border-slate-700 rounded-lg py-1.5 md:py-2 text-center text-slate-900 dark:text-white font-mono focus:border-ios-blue focus:ring-1 focus:ring-ios-blue outline-none transition-all text-sm md:text-base font-bold shadow-sm ${!isEditable ? 'opacity-50' : ''}`}
+                            />
+                          </div>
+                          <div className="col-span-4">
+                            <input
+                              type="number"
+                              value={set.reps}
+                              disabled={!isEditable}
+                              onChange={(e) => updateSet(exIdx, setIdx, 'reps', e.target.value)}
+                              className={`w-full bg-slate-100 dark:bg-slate-950 border border-transparent dark:border-slate-700 rounded-lg py-1.5 md:py-2 text-center text-slate-900 dark:text-white font-mono focus:border-ios-blue focus:ring-1 focus:ring-ios-blue outline-none transition-all text-sm md:text-base font-bold shadow-sm ${!isEditable ? 'opacity-50' : ''}`}
+                            />
+                          </div>
+                          <div className="col-span-2 flex justify-center">
+                            <label className={`cursor-pointer relative ${!isEditable ? 'pointer-events-none opacity-50' : ''}`}>
+                              <input
+                                type="checkbox"
+                                checked={set.completed}
+                                onChange={(e) => updateSet(exIdx, setIdx, 'completed', e.target.checked)}
+                                className="peer sr-only"
+                              />
+                              <div className="w-8 h-8 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 peer-checked:bg-green-500 peer-checked:border-green-500 transition-all flex items-center justify-center text-slate-900 dark:text-white shadow-sm">
+                                <CheckCircle2 size={16} className="opacity-0 peer-checked:opacity-100 transition-opacity md:w-[18px] md:h-[18px]" />
+                              </div>
+                            </label>
+                          </div>
+                          <div className="col-span-1 flex justify-center">
+                            {isEditable && (
+                              <button
+                                onClick={() => removeSet(exIdx, setIdx)}
+                                className="text-slate-700 hover:text-red-500 transition-colors opacity-100 md:opacity-0 md:group-hover/set:opacity-100"
+                              >
+                                <Trash2 size={14} className="md:w-4 md:h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {isEditable && (
+                      <button
+                        onClick={() => handleAddSet(exIdx)}
+                        className="w-full mt-4 py-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 text-sm font-semibold rounded-xl transition flex justify-center items-center gap-2 border border-dashed border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600"
+                      >
+                        <Plus size={16} /> Add Set
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </SwipeableLogExerciseRow>
             ))}
 
             {isEditable && (

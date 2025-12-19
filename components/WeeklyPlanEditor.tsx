@@ -159,7 +159,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
   return (
     <div className="flex flex-col h-full bg-ios-bg-light dark:bg-black overflow-y-auto transition-colors duration-300">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-ios-divider dark:border-slate-800 p-4 flex flex-col md:flex-row items-center justify-between shadow-sm transition-colors duration-300 gap-4">
+      <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-ios-divider dark:border-slate-800 p-4 flex flex-col md:flex-row items-center justify-between shadow-sm transition-all duration-300 gap-4">
         <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 self-start md:self-center">
           <Dumbbell className="text-ios-blue" /> Weekly Planner
           <div className="ml-2">
@@ -170,16 +170,17 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
         <div className="flex gap-3 w-full md:w-auto items-center">
           <button
             onClick={() => setIsGeneratorOpen(true)}
-            className="flex-1 whitespace-nowrap bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 active:scale-95 text-sm"
+            className={`whitespace-nowrap bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 active:scale-95 text-sm ${isGeneratorOpen ? 'flex-[0.5] opacity-80' : 'flex-1'}`}
           >
-            <BrainCircuit size={18} /> Generate Plan (AI)
+            <BrainCircuit size={18} /> <span>Generate Plan (AI)</span>
           </button>
 
           <button
             onClick={() => setIsImportModalOpen(true)}
-            className="flex-1 whitespace-nowrap bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-5 py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 text-sm"
+            className={`whitespace-nowrap bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-5 py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 text-sm ${isImporting ? 'min-w-[140px]' : 'flex-1'}`}
           >
-            <Sparkles size={18} /> Import Text
+            {isImporting ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+            <span>{isImporting ? 'Importing...' : 'Import Text'}</span>
           </button>
         </div>
       </div>
@@ -227,92 +228,15 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
           ) : (
             <div className="space-y-3">
               {currentDayPlan.exercises.map((ex, idx) => (
-                <div key={ex.id} className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide rounded-xl">
-                  {/* Swipe Container */}
-
-                  {/* Main Card Content */}
-                  <div className="min-w-full snap-center bg-slate-50 dark:bg-slate-800/50 p-4 border border-slate-200 dark:border-slate-700/50 flex flex-col md:flex-row gap-4 group">
-
-                    {/* Reorder Controls */}
-                    <div className="hidden md:flex flex-col items-center justify-center gap-1 text-slate-400">
-                      <button
-                        onClick={() => moveExercise(idx, 'up')}
-                        disabled={idx === 0}
-                        className="p-1 hover:text-ios-blue disabled:opacity-30 disabled:hover:text-slate-400 transition"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
-                      </button>
-                      <button
-                        onClick={() => moveExercise(idx, 'down')}
-                        disabled={idx === currentDayPlan.exercises.length - 1}
-                        className="p-1 hover:text-ios-blue disabled:opacity-30 disabled:hover:text-slate-400 transition"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                      </button>
-                    </div>
-
-                    <div className="flex-1 space-y-3">
-                      <div className="flex gap-2">
-                        {/* Mobile Reorder (Horizontal) */}
-                        <div className="md:hidden flex flex-col justify-center gap-2 mr-2 border-r border-slate-200 dark:border-slate-700 pr-2">
-                          <button
-                            onClick={() => moveExercise(idx, 'up')}
-                            disabled={idx === 0}
-                            className="p-1 text-slate-400 hover:text-ios-blue disabled:opacity-30"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
-                          </button>
-                          <button
-                            onClick={() => moveExercise(idx, 'down')}
-                            disabled={idx === currentDayPlan.exercises.length - 1}
-                            className="p-1 text-slate-400 hover:text-ios-blue disabled:opacity-30"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                          </button>
-                        </div>
-
-                        <input
-                          type="text"
-                          placeholder="Exercise Name (e.g. Bench Press)"
-                          value={ex.name}
-                          onChange={(e) => updateExercise(ex.id, 'name', e.target.value)}
-                          className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-ios-blue outline-none font-semibold placeholder:font-normal"
-                        />
-                      </div>
-
-                      <div className="flex gap-3">
-                        <div className="flex-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Sets</label>
-                          <input
-                            type="number"
-                            value={ex.targetSets}
-                            onChange={(e) => updateExercise(ex.id, 'targetSets', e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-ios-blue outline-none"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Reps / Time</label>
-                          <input
-                            type="text"
-                            value={ex.targetReps}
-                            onChange={(e) => updateExercise(ex.id, 'targetReps', e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-ios-blue outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Delete Action Pane (Revealed on Swipe) */}
-                  <div className="min-w-[80px] md:min-w-[100px] snap-center bg-red-500 flex items-center justify-center">
-                    <button
-                      onClick={() => removeExercise(ex.id)}
-                      className="w-full h-full flex items-center justify-center text-white hover:bg-red-600 transition"
-                    >
-                      <Trash2 size={24} />
-                    </button>
-                  </div>
-                </div>
+                <SwipeableExerciseRow
+                  key={ex.id}
+                  exercise={ex}
+                  index={idx}
+                  totalCount={currentDayPlan.exercises.length}
+                  onRemove={() => removeExercise(ex.id)}
+                  onMove={moveExercise}
+                  onUpdate={updateExercise}
+                />
               ))}
 
               <button
@@ -381,5 +305,105 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
         </div>
       </Modal>
     </div >
+  );
+};
+
+const SwipeableExerciseRow: React.FC<{
+  exercise: Exercise;
+  index: number;
+  totalCount: number;
+  onRemove: () => void;
+  onMove: (idx: number, dir: 'up' | 'down') => void;
+  onUpdate: (id: string, field: keyof Exercise, val: any) => void;
+}> = ({ exercise, index, totalCount, onRemove, onMove, onUpdate }) => {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  React.useLayoutEffect(() => {
+    // Scroll to center pane initially to hide the left/right actions
+    if (scrollRef.current) {
+      // We assume the left pane is ~80px. ScrollLeft = 80px to show center.
+      // We can dynamically measure if needed, but fixed width is easier for now.
+      // Let's make the panes fixed width in CSS.
+      scrollRef.current.scrollLeft = 80;
+    }
+  }, []);
+
+  return (
+    <div
+      ref={scrollRef}
+      className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide rounded-xl"
+      style={{ scrollBehavior: 'auto' }} // Disable smooth scroll on mount to snap instantly
+    >
+      {/* Left Reorder Pane */}
+      <div className="min-w-[80px] snap-center bg-slate-200 dark:bg-slate-800 flex flex-col items-center justify-center gap-4">
+        <button
+          onClick={() => {
+            onMove(index, 'up');
+            scrollRef.current?.scrollTo({ left: 80, behavior: 'smooth' }); // Return to center after action
+          }}
+          disabled={index === 0}
+          className="p-2 bg-white dark:bg-slate-700 rounded-full shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+        </button>
+        <button
+          onClick={() => {
+            onMove(index, 'down');
+            scrollRef.current?.scrollTo({ left: 80, behavior: 'smooth' }); // Return to center
+          }}
+          disabled={index === totalCount - 1}
+          className="p-2 bg-white dark:bg-slate-700 rounded-full shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="min-w-full snap-center bg-slate-50 dark:bg-slate-800/50 p-4 border border-slate-200 dark:border-slate-700/50 flex flex-col gap-3 group">
+        {/* Note: We removed the desktop reorder controls from here as they are now in the left swipe actions or handled by the new UX */}
+
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Exercise Name (e.g. Bench Press)"
+            value={exercise.name}
+            onChange={(e) => onUpdate(exercise.id, 'name', e.target.value)}
+            className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-ios-blue outline-none font-semibold placeholder:font-normal"
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Sets</label>
+            <input
+              type="number"
+              value={exercise.targetSets}
+              onChange={(e) => onUpdate(exercise.id, 'targetSets', e.target.value)}
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-ios-blue outline-none"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Reps / Time</label>
+            <input
+              type="text"
+              value={exercise.targetReps}
+              onChange={(e) => onUpdate(exercise.id, 'targetReps', e.target.value)}
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-ios-blue outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Right Delete Pane */}
+      <div className="min-w-[80px] snap-center bg-red-500 flex items-center justify-center">
+        <button
+          onClick={onRemove}
+          className="w-full h-full flex flex-col items-center justify-center text-white hover:bg-red-600 transition gap-1"
+        >
+          <Trash2 size={24} />
+          <span className="text-[10px] font-bold uppercase">Delete</span>
+        </button>
+      </div>
+    </div>
   );
 };
