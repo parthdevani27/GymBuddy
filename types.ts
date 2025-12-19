@@ -55,6 +55,7 @@ export interface DailyLog {
 export interface AppState {
   weeklyPlan: WeeklyPlan;
   logs: { [date: string]: DailyLog };
+  defaultRestTimer?: number; // In seconds
 }
 
 export interface AIReport {

@@ -76,6 +76,11 @@ const AppContent = () => {
     }) : null);
   };
 
+  const handleUpdateRestTimer = (seconds: number) => {
+    if (!state) return;
+    setState(prev => prev ? ({ ...prev, defaultRestTimer: seconds }) : null);
+  };
+
   const handleNavClick = (e: React.MouseEvent) => {
     if (hasUnsavedChanges) {
       if (!window.confirm("You have unsaved changes. Are you sure you want to leave without saving?")) {
@@ -192,6 +197,7 @@ const AppContent = () => {
                 state={state}
                 onSaveLog={handleSaveLog}
                 setHasUnsavedChanges={setHasUnsavedChanges}
+                onUpdateRestTimer={handleUpdateRestTimer}
               />
             }
           />
@@ -301,11 +307,13 @@ const CalendarWrapper = ({ logs }: { logs: { [key: string]: DailyLog } }) => {
 const DayViewWrapper = ({
   state,
   onSaveLog,
-  setHasUnsavedChanges
+  setHasUnsavedChanges,
+  onUpdateRestTimer
 }: {
   state: AppState,
   onSaveLog: (d: string, l: DailyLog) => void,
-  setHasUnsavedChanges: (val: boolean) => void
+  setHasUnsavedChanges: (val: boolean) => void,
+  onUpdateRestTimer: (s: number) => void
 }) => {
   const { dateStr } = useParams();
   const navigate = useNavigate();
@@ -320,6 +328,8 @@ const DayViewWrapper = ({
       onSaveLog={onSaveLog}
       onBack={() => navigate('/calendar')}
       setHasUnsavedChanges={setHasUnsavedChanges}
+      defaultRestTimer={state.defaultRestTimer || 120}
+      onUpdateRestTimer={onUpdateRestTimer}
     />
   );
 };

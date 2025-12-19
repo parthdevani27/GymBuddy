@@ -25,7 +25,8 @@ const loadFromLocal = (): AppState => {
     if (!serialized) {
       return {
         weeklyPlan: DEFAULT_PLAN,
-        logs: {}
+        logs: {},
+        defaultRestTimer: 120
       };
     }
     return JSON.parse(serialized);
@@ -33,7 +34,8 @@ const loadFromLocal = (): AppState => {
     console.error("Failed to load local data", e);
     return {
       weeklyPlan: DEFAULT_PLAN,
-      logs: {}
+      logs: {},
+      defaultRestTimer: 120
     };
   }
 };

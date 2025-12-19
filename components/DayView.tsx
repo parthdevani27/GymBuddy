@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DailyLog, WeeklyPlan, LoggedExercise, SetDetail } from '../types';
 import { DAYS_OF_WEEK } from '../constants';
-import { Save, Plus, Camera, Bot, Trash2, ArrowLeft, CheckCircle2, Dumbbell, Lightbulb, Loader2, Calculator, BrainCircuit, CalendarClock, Lock, History, Play } from 'lucide-react';
+import { Save, Plus, Camera, Bot, Trash2, ArrowLeft, CheckCircle2, Dumbbell, Lightbulb, Loader2, Calculator, BrainCircuit, CalendarClock, Lock, History, Play, Timer, Settings } from 'lucide-react';
 import { fileToBase64 } from '../services/storage';
 import { getExerciseInstructions, getBatchExerciseTips, calculateCalories, analyzeDailyWorkout } from '../services/gemini';
 import { Modal } from './ui/Modal';
@@ -17,9 +17,11 @@ interface Props {
   onSaveLog: (date: string, log: DailyLog) => void;
   onBack: () => void;
   setHasUnsavedChanges: (val: boolean) => void;
+  defaultRestTimer: number;
+  onUpdateRestTimer: (seconds: number) => void;
 }
 
-export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, onBack, setHasUnsavedChanges }) => {
+export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, onBack, setHasUnsavedChanges, defaultRestTimer, onUpdateRestTimer }) => {
   const { showToast } = useToast();
   const dateObj = new Date(dateStr);
   const dayName = DAYS_OF_WEEK[dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1];
@@ -58,6 +60,28 @@ export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, 
   const [aiContent, setAiContent] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiTitle, setAiTitle] = useState('');
+
+  // Rest Timer State
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [showTimerSettings, setShowTimerSettings] = useState(false);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning && timerSeconds > 0) {
+      interval = setInterval(() => {
+        setTimerSeconds(prev => prev - 1);
+      }, 1000);
+    } else if (timerSeconds === 0 && isTimerRunning) {
+      setIsTimerRunning(false);
+      // Vibrate pattern: 200ms vibe, 100ms pause, 200ms vibe
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+      }
+      showToast("Rest time over! Get back to work!", "success");
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timerSeconds, showToast]);
 
   const [visualizerOpen, setVisualizerOpen] = useState(false);
   const [visualizerExercise, setVisualizerExercise] = useState('');
@@ -138,6 +162,12 @@ export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, 
         ...newLogs[exIndex].setsPerformed[setIndex],
         [field]: value
       };
+
+      if (field === 'completed' && value === true) {
+        setTimerSeconds(defaultRestTimer);
+        setIsTimerRunning(true);
+      }
+
       return { ...prev, loggedExercises: newLogs };
     });
   };
@@ -280,15 +310,73 @@ export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, 
             </div>
           </div>
         </div>
-        {isEditable && (
-          <button
-            onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 transition shadow-blue-900/20 shadow-lg"
-          >
-            <Save size={18} /> <span className="hidden sm:inline">Save</span>
-          </button>
-        )}
+
+        {/* Timer UI in Header */}
+        <div className="flex items-center gap-3">
+          {isTimerRunning && (
+            <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 animate-pulse">
+              <Timer size={16} className="text-blue-400" />
+              <span className="font-mono font-bold text-white text-lg">
+                {Math.floor(timerSeconds / 60)}:{(timerSeconds % 60).toString().padStart(2, '0')}
+              </span>
+            </div>
+          )}
+
+          {isEditable && (
+            <button
+              onClick={() => setShowTimerSettings(true)}
+              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+              title="Rest Timer Settings"
+            >
+              <Settings size={20} />
+            </button>
+          )}
+
+          {isEditable && (
+            <button
+              onClick={handleSave}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 transition shadow-blue-900/20 shadow-lg"
+            >
+              <Save size={18} /> <span className="hidden sm:inline">Save</span>
+            </button>
+          )}
+        </div>
       </div>
+
+      <Modal
+        isOpen={showTimerSettings}
+        onClose={() => setShowTimerSettings(false)}
+        title="Rest Timer Settings"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-300">
+            Set the default rest duration triggered after completing a set.
+          </p>
+          <div className="flex items-center gap-4">
+            <Timer size={24} className="text-blue-500" />
+            <input
+              type="range"
+              min="10"
+              max="600"
+              step="10"
+              value={defaultRestTimer}
+              onChange={(e) => onUpdateRestTimer(parseInt(e.target.value))}
+              className="flex-1"
+            />
+            <span className="font-mono font-bold text-white w-16 text-right">
+              {defaultRestTimer}s
+            </span>
+          </div>
+          <div className="flex justify-end pt-4">
+            <button
+              onClick={() => setShowTimerSettings(false)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 font-bold"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <div className="p-4 max-w-4xl mx-auto w-full space-y-8 pb-32">
 
