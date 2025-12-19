@@ -37,47 +37,47 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
   };
 
   return (
-    <div className="p-6 h-full overflow-y-auto bg-slate-950 space-y-6">
-      <h2 className="text-3xl font-bold text-white mb-6">Dashboard</h2>
+    <div className="p-6 h-full overflow-y-auto bg-ios-bg-light dark:bg-slate-950 space-y-6">
+      <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Dashboard</h2>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800 shadow-lg">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-ios-divider dark:border-slate-800 shadow-lg">
           <div className="flex items-center gap-2 md:gap-3 mb-2">
             <Activity className="text-green-500 w-4 h-4 md:w-6 md:h-6" />
-            <h3 className="text-slate-400 font-semibold text-xs md:text-base">Workouts</h3>
+            <h3 className="text-slate-500 dark:text-slate-400 font-semibold text-xs md:text-base">Workouts</h3>
           </div>
-          <p className="text-2xl md:text-4xl font-bold text-white">{totalWorkouts}</p>
+          <p className="text-2xl md:text-4xl font-bold text-slate-900 dark:text-white">{totalWorkouts}</p>
         </div>
-        <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800 shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-ios-divider dark:border-slate-800 shadow-lg overflow-hidden">
           <div className="flex items-center gap-2 md:gap-3 mb-2">
             <Flame className="text-orange-500 w-4 h-4 md:w-6 md:h-6" />
-            <h3 className="text-slate-400 font-semibold text-xs md:text-base">Calories</h3>
+            <h3 className="text-slate-500 dark:text-slate-400 font-semibold text-xs md:text-base">Calories</h3>
           </div>
-          <p className="text-2xl md:text-4xl font-bold text-white truncate" title={`${Math.round(totalCalories).toLocaleString()} kcal`}>
-            {Math.round(totalCalories).toLocaleString()} <span className="text-xs md:text-lg text-slate-500 font-normal">kcal</span>
+          <p className="text-2xl md:text-4xl font-bold text-slate-900 dark:text-white truncate" title={`${Math.round(totalCalories).toLocaleString()} kcal`}>
+            {Math.round(totalCalories).toLocaleString()} <span className="text-xs md:text-lg text-slate-400 dark:text-slate-500 font-normal">kcal</span>
           </p>
         </div>
-        <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800 shadow-lg">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-ios-divider dark:border-slate-800 shadow-lg">
           <div className="flex items-center gap-2 md:gap-3 mb-2">
             <TrendingUp className="text-blue-500 w-4 h-4 md:w-6 md:h-6" />
-            <h3 className="text-slate-400 font-semibold text-xs md:text-base">Entries</h3>
+            <h3 className="text-slate-500 dark:text-slate-400 font-semibold text-xs md:text-base">Entries</h3>
           </div>
-          <p className="text-2xl md:text-4xl font-bold text-white">{logs.length}</p>
+          <p className="text-2xl md:text-4xl font-bold text-slate-900 dark:text-white">{logs.length}</p>
         </div>
-        <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800 shadow-lg">
+        <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-ios-divider dark:border-slate-800 shadow-lg">
           <div className="flex items-center gap-2 md:gap-3 mb-2">
-            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-red-500/20 border border-red-500 flex items-center justify-center text-[10px] md:text-xs text-red-500 font-bold">!</div>
-            <h3 className="text-slate-400 font-semibold text-xs md:text-base">Skipped</h3>
+            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-red-500/10 dark:bg-red-500/20 border border-red-500 flex items-center justify-center text-[10px] md:text-xs text-red-500 font-bold">!</div>
+            <h3 className="text-slate-500 dark:text-slate-400 font-semibold text-xs md:text-base">Skipped</h3>
           </div>
-          <p className="text-2xl md:text-4xl font-bold text-white">{totalSkipped}</p>
+          <p className="text-2xl md:text-4xl font-bold text-slate-900 dark:text-white">{totalSkipped}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weight Chart */}
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg h-80">
-          <h3 className="text-xl font-bold text-white mb-4">Weight Trend</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-ios-divider dark:border-slate-800 shadow-lg h-80">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Weight Trend</h3>
           {chartData.length > 1 ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
@@ -100,8 +100,8 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
         </div>
 
         {/* Calories Chart */}
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-lg h-80">
-          <h3 className="text-xl font-bold text-white mb-4">Calorie Burn</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-ios-divider dark:border-slate-800 shadow-lg h-80">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Calorie Burn</h3>
           {chartData.length > 1 ? (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
@@ -117,7 +117,7 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-500">
+            <div className="h-full flex items-center justify-center text-slate-400 dark:text-slate-500">
               Log at least two workouts.
             </div>
           )}
@@ -125,15 +125,15 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
       </div>
 
       {/* AI Report Section */}
-      <div className="bg-gradient-to-br from-slate-900 to-slate-900 border border-slate-700 rounded-xl shadow-lg overflow-hidden">
-        <div className="p-6 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <Sparkles className="text-purple-400" /> AI Progress Report
+      <div className="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-900 border border-ios-divider dark:border-slate-700 rounded-xl shadow-lg overflow-hidden">
+        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-ios-divider dark:border-slate-700 flex justify-between items-center">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Sparkles className="text-purple-500 dark:text-purple-400" /> AI Progress Report
           </h3>
           <button
             onClick={handleGenerateReport}
             disabled={loading}
-            className="bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 text-white px-4 py-2 rounded-lg font-semibold transition"
+            className="bg-purple-600 hover:bg-purple-500 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-4 py-2 rounded-lg font-semibold transition"
           >
             {loading ? 'Analyzing...' : 'Generate New Report'}
           </button>
@@ -142,18 +142,18 @@ export const Dashboard: React.FC<Props> = ({ data }) => {
         <div className="p-6">
           {report ? (
             <div className="space-y-4 animate-fadeIn">
-              <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                <h4 className="text-purple-300 font-bold mb-2 uppercase text-sm">Analysis Summary</h4>
-                <p className="text-slate-300 leading-relaxed">{report.summary}</p>
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                <h4 className="text-purple-600 dark:text-purple-300 font-bold mb-2 uppercase text-sm">Analysis Summary</h4>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{report.summary}</p>
               </div>
 
               <div>
-                <h4 className="text-blue-300 font-bold mb-3 uppercase text-sm">Actionable Tips</h4>
+                <h4 className="text-blue-600 dark:text-blue-300 font-bold mb-3 uppercase text-sm">Actionable Tips</h4>
                 <ul className="space-y-2">
                   {report.tips.map((tip, idx) => (
-                    <li key={idx} className="flex gap-3 bg-slate-800 p-3 rounded-lg">
+                    <li key={idx} className="flex gap-3 bg-slate-100 dark:bg-slate-800 p-3 rounded-lg">
                       <span className="text-blue-500 font-bold">{idx + 1}.</span>
-                      <span className="text-slate-300">{tip}</span>
+                      <span className="text-slate-700 dark:text-slate-300">{tip}</span>
                     </li>
                   ))}
                 </ul>

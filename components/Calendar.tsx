@@ -34,15 +34,15 @@ export const CalendarView: React.FC<Props> = ({ logs, onSelectDate }) => {
   };
 
   return (
-    <div className="h-full flex flex-col p-4 bg-slate-950">
+    <div className="h-full flex flex-col p-4 bg-ios-bg-light dark:bg-slate-950">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 md:mb-6 gap-4">
-        <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-          <CalIcon className="text-blue-500" size={24} /> Calendar
+        <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <CalIcon className="text-ios-blue" size={24} /> Calendar
         </h2>
-        <div className="flex items-center gap-4 bg-slate-900 rounded-lg p-1 border border-slate-800 w-full md:w-auto justify-between md:justify-start">
-          <button onClick={prevMonth} className="p-2 hover:bg-slate-800 rounded-md text-white"><ChevronLeft size={20} /></button>
-          <span className="text-white font-semibold w-32 text-center text-sm md:text-base">{monthNames[month]} {year}</span>
-          <button onClick={nextMonth} className="p-2 hover:bg-slate-800 rounded-md text-white"><ChevronRight size={20} /></button>
+        <div className="flex items-center gap-4 bg-white dark:bg-slate-900 rounded-lg p-1 border border-ios-divider dark:border-slate-800 w-full md:w-auto justify-between md:justify-start shadow-sm">
+          <button onClick={prevMonth} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md text-slate-600 dark:text-white"><ChevronLeft size={20} /></button>
+          <span className="text-slate-900 dark:text-white font-semibold w-32 text-center text-sm md:text-base">{monthNames[month]} {year}</span>
+          <button onClick={nextMonth} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md text-slate-600 dark:text-white"><ChevronRight size={20} /></button>
         </div>
       </div>
 
@@ -59,18 +59,18 @@ export const CalendarView: React.FC<Props> = ({ logs, onSelectDate }) => {
           const day = i + 1;
           const { dateStr, log, isToday } = getDayStatus(day);
 
-          let bgColor = 'bg-slate-900';
-          let borderColor = 'border-slate-800';
+          let bgColor = 'bg-white dark:bg-slate-900';
+          let borderColor = 'border-slate-200 dark:border-slate-800';
 
           if (log?.status === 'present') {
-            bgColor = 'bg-green-900/30';
-            borderColor = 'border-green-800';
+            bgColor = 'bg-green-50 dark:bg-green-900/30';
+            borderColor = 'border-green-200 dark:border-green-800';
           } else if (log?.status === 'absent') {
-            bgColor = 'bg-red-900/20';
-            borderColor = 'border-red-900/30';
+            bgColor = 'bg-red-50 dark:bg-red-900/20';
+            borderColor = 'border-red-200 dark:border-red-900/30';
           }
 
-          if (isToday) borderColor = 'border-blue-500 border-2';
+          if (isToday) borderColor = 'border-ios-blue border-2';
 
           return (
             <button
@@ -78,16 +78,16 @@ export const CalendarView: React.FC<Props> = ({ logs, onSelectDate }) => {
               onClick={() => onSelectDate(dateStr)}
               className={`relative rounded-lg md:rounded-xl border p-1 md:p-2 flex flex-col items-start justify-between hover:scale-[1.02] transition shadow-sm ${bgColor} ${borderColor} min-h-[70px] md:min-h-[100px] overflow-hidden`}
             >
-              <span className={`text-xs md:text-sm font-bold ${isToday ? 'text-blue-400' : 'text-slate-300'}`}>{day}</span>
+              <span className={`text-xs md:text-sm font-bold ${isToday ? 'text-ios-blue' : 'text-slate-700 dark:text-slate-300'}`}>{day}</span>
 
               <div className="flex flex-col items-end w-full gap-0.5 md:gap-1">
                 {log?.caloriesBurned !== undefined && (
-                  <span className="flex items-center gap-0.5 text-[8px] md:text-[9px] text-orange-400 font-bold bg-slate-950/50 px-1 rounded truncate max-w-full">
+                  <span className="flex items-center gap-0.5 text-[8px] md:text-[9px] text-orange-500 dark:text-orange-400 font-bold bg-white/50 dark:bg-slate-950/50 px-1 rounded truncate max-w-full">
                     <Flame size={8} fill="currentColor" className="flex-shrink-0" /> {Math.round(log.caloriesBurned)}
                   </span>
                 )}
                 {log?.bodyWeight && (
-                  <span className="text-[8px] md:text-[10px] bg-slate-800 text-slate-300 px-1 rounded truncate max-w-full">{log.bodyWeight}kg</span>
+                  <span className="text-[8px] md:text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 px-1 rounded truncate max-w-full">{log.bodyWeight}kg</span>
                 )}
                 {log?.progressPhotos && log.progressPhotos.length > 0 && (
                   <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-purple-500"></div>

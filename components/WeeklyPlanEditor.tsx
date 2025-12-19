@@ -127,8 +127,8 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
   return (
     <div className="space-y-6 h-full flex flex-col">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Dumbbell className="text-blue-500" /> Weekly Planner
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Dumbbell className="text-ios-blue" /> Weekly Planner
         </h2>
         <div className="flex gap-2 w-full md:w-auto">
           <button
@@ -152,8 +152,8 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
             key={day}
             onClick={() => setSelectedDay(day)}
             className={`px-4 py-2 rounded-full whitespace-nowrap transition ${selectedDay === day
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+              ? 'bg-ios-blue text-white shadow-md'
+              : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-ios-divider dark:border-transparent'
               }`}
           >
             {day}
@@ -161,9 +161,9 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
         ))}
       </div>
 
-      <div className="bg-slate-900 rounded-xl p-6 border border-slate-800 flex-1 overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-ios-divider dark:border-slate-800 flex-1 overflow-y-auto shadow-sm">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-semibold text-blue-100">{selectedDay}</h3>
+          <h3 className="text-xl font-semibold text-slate-900 dark:text-blue-100">{selectedDay}</h3>
           <div className="flex items-center gap-3">
             <span className="text-slate-400 text-sm">Rest Day?</span>
             <button
@@ -185,7 +185,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
         ) : (
           <div className="space-y-4">
             {currentDayPlan.exercises.map((ex, idx) => (
-              <div key={ex.id} className="bg-slate-800 p-4 rounded-lg border border-slate-700">
+              <div key={ex.id} className="bg-ios-bg-light dark:bg-slate-800 p-4 rounded-lg border border-ios-divider dark:border-slate-700">
                 <div className="flex justify-between items-start mb-3 gap-4">
                   <div className="flex-1 space-y-3">
                     <input
@@ -193,7 +193,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
                       placeholder="Exercise Name (e.g. Bench Press)"
                       value={ex.name}
                       onChange={(e) => updateExercise(ex.id, 'name', e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-ios-blue outline-none"
                     />
                     <div className="flex gap-4">
                       <div className="flex-1">
@@ -202,7 +202,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
                           type="number"
                           value={ex.targetSets}
                           onChange={(e) => updateExercise(ex.id, 'targetSets', e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white"
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white"
                         />
                       </div>
                       <div className="flex-1">
@@ -211,16 +211,16 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
                           type="text"
                           value={ex.targetReps}
                           onChange={(e) => updateExercise(ex.id, 'targetReps', e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white"
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white"
                         />
                       </div>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="cursor-pointer bg-slate-700 hover:bg-slate-600 p-2 rounded text-center transition">
-                      <Upload size={18} className="mx-auto text-blue-400" />
-                      <span className="text-[10px] text-slate-300">Media</span>
+                    <label className="cursor-pointer bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 p-2 rounded text-center transition border border-slate-300 dark:border-transparent">
+                      <Upload size={18} className="mx-auto text-ios-blue dark:text-blue-400" />
+                      <span className="text-[10px] text-slate-500 dark:text-slate-300">Media</span>
                       <input
                         type="file"
                         accept="image/*,video/*"
@@ -246,7 +246,7 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
 
             <button
               onClick={addExercise}
-              className="w-full py-3 border-2 border-dashed border-slate-700 text-slate-400 rounded-lg hover:border-blue-500 hover:text-blue-500 transition flex items-center justify-center gap-2"
+              className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded-lg hover:border-ios-blue hover:text-ios-blue transition flex items-center justify-center gap-2"
             >
               <Plus size={20} /> Add Exercise
             </button>
@@ -260,20 +260,20 @@ export const WeeklyPlanEditor: React.FC<Props> = ({ plan, onSave, setHasUnsavedC
         title="AI Plan Import"
       >
         <div className="space-y-4">
-          <p className="text-slate-300 text-sm">
+          <p className="text-slate-500 dark:text-slate-300 text-sm">
             Paste your workout plan below. The AI will automatically detect days, exercises, sets, and reps.
-            <span className="text-orange-400 block mt-1">Note: This will replace your current unsaved changes and automatically save the new plan.</span>
+            <span className="text-orange-500 dark:text-orange-400 block mt-1">Note: This will replace your current unsaved changes and automatically save the new plan.</span>
           </p>
           <textarea
             value={importText}
             onChange={(e) => setImportText(e.target.value)}
             placeholder={`Example:\nMONDAY: Chest\nBench Press: 3 sets x 10 reps\nPushups: 3 sets x 15 reps\n\nWEDNESDAY: Legs...`}
-            className="w-full h-64 bg-slate-950 border border-slate-700 rounded-lg p-3 text-white text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none font-mono"
+            className="w-full h-64 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none font-mono placeholder:text-slate-400"
           />
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setIsImportModalOpen(false)}
-              className="px-4 py-2 text-slate-400 hover:text-white transition"
+              className="px-4 py-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition"
               disabled={isImporting}
             >
               Cancel

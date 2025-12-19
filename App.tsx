@@ -11,11 +11,14 @@ import { Modal } from './components/ui/Modal';
 import { getISTDateString } from './utils/time';
 import { LayoutDashboard, Calendar, ClipboardList, Loader2, CalendarCheck, Cloud, CloudOff, Wifi, WifiOff, Settings, RefreshCw } from 'lucide-react';
 import { PinLock } from './components/PinLock';
+import { ThemeProvider, useTheme } from './components/ThemeContext';
+import { Moon, Sun } from 'lucide-react';
 
 import { MobileNav } from './components/MobileNav';
 
 const AppContent = () => {
   const { showToast } = useToast();
+  const { theme, toggleTheme } = useTheme();
   const [state, setState] = useState<AppState | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'connected' | 'offline'>('offline');
@@ -112,12 +115,14 @@ const AppContent = () => {
   }
 
   return (
-    <div className="flex h-screen w-full bg-slate-950 text-slate-200">
+    <div className="flex h-screen w-full bg-ios-bg-light dark:bg-black text-slate-800 dark:text-slate-200 transition-colors duration-300">
       {/* Sidebar Navigation */}
-      <div className="hidden md:flex w-20 md:w-64 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex-col">
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">G</div>
-          <h1 className="text-xl font-bold text-white hidden md:block">GymGenius</h1>
+      <div className="hidden md:flex w-20 md:w-64 flex-shrink-0 bg-ios-card-light dark:bg-ios-card-dark border-r border-ios-divider dark:border-slate-800 flex-col transition-colors duration-300">
+        <div className="p-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-ios-blue rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-ios-blue/30">G</div>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white hidden md:block tracking-tight">GymGenius</h1>
+          </div>
         </div>
 
         <nav className="flex-1 px-4 space-y-2">
@@ -158,7 +163,17 @@ const AppContent = () => {
         </nav>
 
         {/* Sync Status Indicator */}
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-ios-divider dark:border-slate-800 space-y-2">
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 transition"
+          >
+            {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+            <span className="hidden md:block">
+              {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+            </span>
+          </button>
           <button
             onClick={() => setIsConnectionModalOpen(true)}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition hover:opacity-80 ${syncStatus === 'connected' ? 'bg-green-900/20 text-green-400 border border-green-900/30' : 'bg-red-900/20 text-red-400 border border-red-900/30'}`}
@@ -342,11 +357,13 @@ const App = () => {
   }
 
   return (
-    <HashRouter>
-      <ToastProvider>
-        <AppContent />
-      </ToastProvider>
-    </HashRouter>
+    <ThemeProvider>
+      <HashRouter>
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
+      </HashRouter>
+    </ThemeProvider>
   );
 };
 

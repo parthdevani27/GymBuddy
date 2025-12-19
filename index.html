@@ -4,12 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GymGenius AI</title>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                },
                 extend: {
                     colors: {
+                        ios: {
+                            blue: '#007AFF',
+                            gray: '#8E8E93',
+                            'bg-light': '#F2F2F7',
+                            'card-light': '#FFFFFF',
+                            'bg-dark': '#000000',
+                            'card-dark': '#1C1C1E',
+                            divider: 'rgba(60, 60, 67, 0.36)',
+                        },
                         slate: {
                             850: '#1e293b',
                             900: '#0f172a',

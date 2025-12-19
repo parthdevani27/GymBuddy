@@ -57,9 +57,10 @@ export const calculateCalories = async (log: DailyLog): Promise<number> => {
   ).join('\n');
 
   const prompt = `
-      Calculate the approximate TOTAL calories burned for a person with body weight ${log.bodyWeight || 70}kg performing this workout:
+      Calculate the approximate TOTAL calories burned for a person with body weight ${log.bodyWeight || 70}kg performing this workout session.
       ${workoutDetails}
       
+      IMPORTANT: Calculate the total from scratch based strictly on the exercises listed above. Do not add to any previous values.
       Consider intensity implied by weights and reps.
       Return ONLY a single number (integer) representing the calories. Do not output text.
     `;
