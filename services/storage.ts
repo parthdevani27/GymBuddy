@@ -1,28 +1,20 @@
 import { AppState, WeeklyPlan, DailyLog } from '../types';
 import { DEFAULT_PLAN } from '../constants';
-import { createClient } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from './supabase';
 
 const STORAGE_KEY = 'gym_genius_data_v1';
 
-// Supabase Configuration
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Default to checking for env vars availability
-const getIsConfigured = () => {
-  return !!(SUPABASE_URL && SUPABASE_KEY);
-}
-
-// Initialize Supabase Client
-const supabase = getIsConfigured()
-  ? createClient(SUPABASE_URL, SUPABASE_KEY)
-  : null;
+// Initialize Supabase Client (now using shared instance)
+// ...
 
 // Helper to load from LocalStorage as a fallback
-const loadFromLocal = (): AppState => {
+const loadFromLocal = (userId: string): AppState => {
   try {
-    const serialized = localStorage.getItem(STORAGE_KEY);
+    // Strict namespacing: Only load data for this specific user
+    const serialized = localStorage.getItem(`${STORAGE_KEY}_${userId}`);
+
     if (!serialized) {
+      console.log(`No local data found for user ${userId}, initializing clean state.`);
       return {
         weeklyPlan: DEFAULT_PLAN,
         logs: {},
@@ -46,21 +38,19 @@ interface LoadResult {
 }
 
 // Async load function favoring Supabase but falling back to LocalStorage
-export const loadData = async (): Promise<LoadResult> => {
+export const loadData = async (userId: string): Promise<LoadResult> => { // userId is now required
   if (!supabase) {
     console.warn("Supabase not configured. Using local storage.");
-    return { data: loadFromLocal(), source: 'local' };
+    return { data: loadFromLocal(userId), source: 'local' };
   }
 
   try {
-    console.log(`Attempting to sync with Supabase...`);
+    console.log(`Attempting to sync with Supabase for user: ${userId}...`);
 
-    // We assume a simple table 'user_data' with columns: id (string), data (jsonb)
-    // We use a fixed ID 'default-user' for this single-user version
     const { data, error } = await supabase
       .from('user_data')
       .select('data')
-      .eq('id', 'default-user')
+      .eq('id', userId)
       .single();
 
     if (error && error.code !== 'PGRST116') { // PGRST116 is "Row not found"
@@ -71,25 +61,25 @@ export const loadData = async (): Promise<LoadResult> => {
       console.log("✅ Loaded data from Supabase");
       // Update local storage with fresh cloud data
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.data));
+        localStorage.setItem(`${STORAGE_KEY}_${userId}`, JSON.stringify(data.data));
       } catch (e) { console.warn("Failed to update local cache"); }
       return { data: data.data, source: 'cloud' };
     } else {
       console.log("Connected to Supabase but no data found. Using local default.");
-      return { data: loadFromLocal(), source: 'cloud' };
+      return { data: loadFromLocal(userId), source: 'cloud' };
     }
 
   } catch (error) {
     console.warn("❌ Could not reach Supabase. Falling back to local storage.", error);
   }
 
-  return { data: loadFromLocal(), source: 'local' };
+  return { data: loadFromLocal(userId), source: 'local' };
 };
 
-export const saveData = async (data: AppState): Promise<boolean> => {
+export const saveData = async (data: AppState, userId: string = 'default-user'): Promise<boolean> => {
   // 1. Always save to LocalStorage for redundancy/offline safety
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(`${STORAGE_KEY}_${userId}`, JSON.stringify(data));
   } catch (e) {
     console.error("Failed to save to local storage", e);
   }
@@ -103,7 +93,7 @@ export const saveData = async (data: AppState): Promise<boolean> => {
     const { error } = await supabase
       .from('user_data')
       .upsert({
-        id: 'default-user',
+        id: userId,
         data: data,
         updated_at: new Date().toISOString()
       }, { onConflict: 'id' });

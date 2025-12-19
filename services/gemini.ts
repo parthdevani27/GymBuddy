@@ -259,3 +259,62 @@ export const getExerciseVisualDetails = async (exerciseName: string): Promise<{
     return null;
   }
 }
+
+export const generateWeeklyPlanFromProfile = async (profile: any): Promise<WeeklyPlan | null> => {
+  if (!process.env.API_KEY) return null;
+
+  const prompt = `
+    Create a highly personalized Weekly Workout Plan for this user based on their profile:
+    
+    ${JSON.stringify(profile, null, 2)}
+    
+    Requirements:
+    1. Respect their goal, experience level, available equipment, and time constraints.
+    2. Respect their specific workout days and rest days preference if feasible.
+    3. If they have injuries or cannot perform specific exercises, SUBSTITUTE them safely.
+    4. Structure the plan for 7 days (Monday-Sunday). Mark rest days clearly.
+    5. Be specific with "sets" (e.g. "3") and "reps" (e.g. "8-12" or "Failure" or "20 mins").
+    6. Return ONLY valid JSON matching this schema:
+    {
+      "Monday": { "isRestDay": boolean, "exercises": [{ "name": "string", "targetSets": "string", "targetReps": "string" }] },
+      ...etc for all 7 days
+    }
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: GEMINI_MODEL_TEXT,
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      }
+    });
+
+    const rawPlan = JSON.parse(response.text || "{}");
+
+    // Reuse the same post-processing logic as the text parser
+    const processedPlan: any = { ...DEFAULT_PLAN };
+
+    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+      if (rawPlan[day]) {
+        processedPlan[day] = {
+          id: `plan-${day}-${Date.now()}`,
+          dayOfWeek: day,
+          isRestDay: rawPlan[day].isRestDay ?? true,
+          exercises: Array.isArray(rawPlan[day].exercises) ? rawPlan[day].exercises.map((ex: any, idx: number) => ({
+            id: `ex-${day}-${idx}-${Date.now()}`,
+            name: ex.name || "Unknown Exercise",
+            targetSets: String(ex.targetSets || "3"),
+            targetReps: String(ex.targetReps || "10"),
+          })) : []
+        };
+      }
+    });
+
+    return processedPlan as WeeklyPlan;
+
+  } catch (error) {
+    console.error("Gemini Generator Error:", error);
+    return null;
+  }
+};

@@ -5,6 +5,7 @@ import { Save, Plus, Camera, Bot, Trash2, ArrowLeft, CheckCircle2, Dumbbell, Lig
 import { fileToBase64 } from '../services/storage';
 import { getExerciseInstructions, getBatchExerciseTips, calculateCalories, analyzeDailyWorkout } from '../services/gemini';
 import { Modal } from './ui/Modal';
+import { SaveIndicator } from './ui/SaveIndicator';
 import { ExerciseVisualizer } from './ExerciseVisualizer';
 import ReactMarkdown from 'react-markdown';
 import { isFutureDate, isTodayDate, isYesterdayDate } from '../utils/time';
@@ -273,29 +274,10 @@ export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, 
     setAiLoading(false);
   };
 
-  const handlePhotoUpload = async (file: File) => {
-    if (!isEditable) return;
-    try {
-      const base64 = await fileToBase64(file);
-      setCurrentLog(prev => ({
-        ...prev,
-        progressPhotos: [...(prev.progressPhotos || []), base64]
-      }));
-      showToast('Photo added successfully!', 'success');
-    } catch (e) {
-      console.error(e);
-      showToast('Failed to upload photo', 'error');
-    }
-  };
+  // Photo upload removed as per request
 
   const handleSave = () => {
-    if (!isEditable) {
-      showToast("Cannot save changes. This log is read-only.", "error");
-      return;
-    }
-    onSaveLog(dateStr, currentLog);
-    setOriginalLogJson(JSON.stringify(currentLog)); // Update baseline
-    showToast("Workout saved successfully!", "success");
+    // No-op or internal implementation if needed, but UI button is gone.
   };
 
   // AI Actions for End of Day
@@ -317,6 +299,33 @@ export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, 
     setAiLoading(false);
     showToast("Calories updated and saved!", "success");
   };
+
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+  // Auto-save Effect for Day Log
+  useEffect(() => {
+    if (!isEditable) return;
+    if (JSON.stringify(currentLog) === originalLogJson) return;
+
+    setSaveStatus('saving');
+
+    const timer = setTimeout(() => {
+      onSaveLog(dateStr, currentLog);
+      setOriginalLogJson(JSON.stringify(currentLog));
+
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 1000);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [currentLog, originalLogJson, isEditable, dateStr, onSaveLog]);
+
+  // Removed manual save button logic, but kept internal helper for other saves if needed?
+  // Actually, other actions like Calorie/AI analysis force a save too.
+  // We should update saveStatus for them as well if we want consistency,
+  // or just let them rely on their own logic. 
+  // But wait, they call onSaveLog directly.
+  // The 'originalLogJson' update triggers a re-render which avoids the effect firing if we sync it.
 
   const handleDailyAnalysis = async () => {
     // Analysis can be allowed even if locked? No, it updates the log.
@@ -390,12 +399,9 @@ export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, 
           )}
 
           {isEditable && (
-            <button
-              onClick={handleSave}
-              className="bg-ios-blue hover:bg-blue-600 text-white px-5 py-2.5 rounded-full font-bold flex items-center gap-2 transition shadow-lg shadow-blue-500/20 active:scale-95"
-            >
-              <Save size={18} /> <span className="hidden sm:inline">Save</span>
-            </button>
+            <div className="w-10 flex justify-center">
+              <SaveIndicator status={saveStatus} />
+            </div>
           )}
         </div>
       </div>
@@ -515,24 +521,11 @@ export const DayView: React.FC<Props> = ({ dateStr, weeklyPlan, log, onSaveLog, 
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">kg</span>
               </div>
             </div>
-            <div className="flex-1 min-w-[200px]">
-              <label className="text-xs text-slate-500 font-bold mb-2 block tracking-wider">PROGRESS PHOTO</label>
-              <label className={`flex items-center justify-center gap-3 w-full bg-ios-bg-light dark:bg-black hover:bg-slate-200 dark:hover:bg-slate-800 p-3 rounded-2xl cursor-pointer transition border border-dashed border-slate-300 dark:border-slate-700 group h-[64px] ${!isEditable ? 'opacity-50 pointer-events-none' : ''}`}>
-                <Camera size={24} className="text-ios-blue dark:text-blue-400 group-hover:scale-110 transition" />
-                <span className="text-sm text-slate-600 dark:text-slate-300 font-semibold">Upload Photo</span>
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && handlePhotoUpload(e.target.files[0])} />
-              </label>
+            <div className="flex-1 min-w-[200px] hidden">
+              {/* Photo upload removed */}
             </div>
           </div>
-          {currentLog.progressPhotos && currentLog.progressPhotos.length > 0 && (
-            <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
-              {currentLog.progressPhotos.map((img, i) => (
-                <div key={i} className="relative group">
-                  <img src={img} alt="Progress" className="h-24 w-24 object-cover rounded-xl border-2 border-slate-700 shadow-md" />
-                </div>
-              ))}
-            </div>
-          )}
+
         </div>
 
         {/* Exercises Section */}
